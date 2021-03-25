@@ -28,27 +28,26 @@ Please see the next section for a complete list of all of the command-line switc
 
 ## Usage:
 
-        ./cr_oravm.sh -G val -H val -N -O val -P val -S val -c val -d val -i val -n val -p val -r val -s val -u val -v -w val -z val
+        ./cr_oravm.sh -N -O val -P val -S val -c val -d val -g val -h val -i val -r val -s val -u val -v -w val -x val -z val
 
 ### where:
 
-        -G resource-group-name  name of the Azure resource group (default: {owner}-{project}-rg)
-        -H ORACLE_HOME          full path of the ORACLE_HOME software (default: /u01/app/oracle/product/12.2.0/dbhome_1)
-        -N                      skip storage account and network setup i.e. vnet, NSG, NSG rules (default: false)
-        -O owner-tag            name of the owner to use in Azure tags (default: `whoami`)
+        -N                      skip network setup i.e. vnet, subnet, NSG, NSG rules (default: false)
+        -O owner-tag            name of the owner to use in Azure tags (default: Linux 'whoami')
         -P project-tag          name of the project to use in Azure tags (default: oravm)
         -S subscription         name of the Azure subscription (no default)
-        -c None|ReadOnly        caching of managed disk for data (default: ReadOnly)
-        -d domain-name          IP domain name (default: internal.cloudapp.net)
-        -i instance-type        name of the Azure VM instance type (default: Standard_DS11-1_v2)
-        -n #data-disks          number of data disks to attach to the VM (default: 1)
-        -p Oracle-port          port number of the Oracle TNS Listener (default: 1521)
+        -c True|False           True is ReadWrite for OS / ReadOnly for data, False is None (default: True)
+        -d #data-disks          number of data disks to attach to the VM (default: 1)
+        -g resource-group-name  name of the Azure resource group (default: \"{owner}-{project}-rg\")
+        -h ORACLE_HOME          full path of ORACLE_HOME software (default: /u01/app/oracle/product/19.0.0/dbhome_1)
+        -i instance-type        name of the Azure VM instance type (default: Standard_D2s_v4)
         -r region               name of Azure region (default: westus)
-        -s ORACLE_SID           Oracle System ID (SID) value (default: oradb01)
-        -u urn                  Azure URN for the VM from the marketplace (default: Oracle:Oracle-Database-Ee:12.2.0.1:12.2.20180725)
+        -s data-disk-GB         size of each attached data-disk in GB (default: 128)
+        -u urn                  Azure URN for the VM from the marketplace (default: Oracle:oracle-database-19-3:oracle-database-19-0904:19.3.1)
         -v                      set verbose output is true (default: false)
         -w password             clear-text value of initial SYS and SYSTEM password in Oracle database (default: oracleA1)
-        -z data-disk-GB         size of each attached data-disk in GB (default: 4095)
+        -x vm-number            sequence number for VM within Azure resource group (default: 01)
+        -z zone                 number of the availability zone within the Azure region (default: 1)
 
 ### Expected prerequisites:
         1) Azure subscription, specify with "-S" switch, as explained
@@ -85,21 +84,19 @@ For example, to create an E16ds v4 VM with four 2 TiB data disks on the Azure ma
             -S "ExampleSubscriptionName" \
             -P ora19c \
             -i Standard_E2ds_v4 
-            -n 2 \
-            -z 2048 \
-            -p 1522 \
-            -s ORCL \
+            -d 2 \
+            -s 2048 \
             -r westus2 \
             -u Oracle:oracle-database-19-3:oracle-db-19300:19.3.0 \
-            -H /u01/app/oracle/product/19.0.0/dbhome_1
+            -h /u01/app/oracle/product/19.0.0/dbhome_1
 
 This will have the following impact, besides generating the example output displayed in the "oravm_output.txt" file...
 
  - the "-v" switch will display all script variables values and parameter values at the beginning of the execution
  - set the Azure subscription used by the session
  - set the Azure "project" value to "ora19c", which will impact the naming of all objects and tags
- - build a VM sized at E2ds v4 using the marketplace Oracle19c image with an OS disk and two data disks of 2 TiB and an Oracle database named "ORCL" on network port 1522 in the West US 2 region.
- - please note that the marketplace Oracle19c image has ORACLE_HOME at a specific location
+ - build a VM sized at E2ds v4 using the marketplace Oracle19c image with an OS disk and two data disks of 2 TiB in the West US 2 region.
+ - please note that the marketplace Oracle19c image has ORACLE_HOME at a specific location, so when "-u" is specified "-h" must be specified as well
 
 # Finding Azure marketplace images from Oracle
 
